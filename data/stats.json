@@ -1505,6 +1505,10 @@
    "cobblemon_expeditions_doc": 0,
    "zsh-config": 0
   },
+  "releases": {
+   "pteroCATrustPilotPlugin": "1",
+   "pkmn-randomizer-3ds": "2.1.2"
+  },
   "public_repos": 19,
   "languages": {
    "TypeScript": 763,
@@ -1521,9 +1525,16 @@
  },
  "modrinth": {
   "cobblemon_expeditions": {
-   "downloads": 404062,
-   "followers": 63
+   "downloads": 404218,
+   "followers": 63,
+   "version": "1.8.1"
   }
  },
- "updated": "2026-10-23T16:20:51+00:00"
+ "updated": "2026-10-23T16:29:44+00:00",
+ "curseforge": {
+  "1722670": {
+   "downloads": 223,
+   "version": "1.0.1"
+  }
+ }
 }

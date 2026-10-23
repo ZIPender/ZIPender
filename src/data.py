@@ -5,6 +5,7 @@ Every source falls back to the cached copy when it fails, so a flaky API never b
 import datetime as dt
 import json
 import os
+import re
 import urllib.request
 from pathlib import Path
 
@@ -27,7 +28,9 @@ query($login: String!) {
         contributions { totalCount }
       }
     }
-    repositories(first: 100, ownerAffiliations: OWNER, privacy: PUBLIC) { totalCount nodes { name stargazerCount } }
+    repositories(first: 100, ownerAffiliations: OWNER, privacy: PUBLIC) {
+      totalCount nodes { name stargazerCount latestRelease { tagName } }
+    }
   }
 }
 """
@@ -70,6 +73,8 @@ def fetch_github(login, token, hide_repos=(), hide_languages=()):
         "contributions": contrib["contributionCalendar"]["totalContributions"],
         "days": days,
         "stars": {r["name"]: r["stargazerCount"] for r in user["repositories"]["nodes"]},
+        "releases": {r["name"]: r["latestRelease"]["tagName"].lstrip("v")
+                     for r in user["repositories"]["nodes"] if r["latestRelease"]},
         "public_repos": user["repositories"]["totalCount"],
         "languages": dict(sorted(commits.items(), key=lambda kv: -kv[1])),
         "languages_include_private": private_seen,
@@ -78,7 +83,22 @@ def fetch_github(login, token, hide_repos=(), hide_languages=()):
 
 def fetch_modrinth(slug):
     p = _request(f"https://api.modrinth.com/v2/project/{slug}")
-    return {"downloads": p["downloads"], "followers": p["followers"]}
+    versions = _request(f"https://api.modrinth.com/v2/project/{slug}/version")  # newest first
+    return {"downloads": p["downloads"], "followers": p["followers"],
+            "version": versions[0]["version_number"] if versions else None}
+
+
+def fetch_curseforge(project_id):
+    """Downloads and latest file of a CurseForge project, through the keyless CFWidget API (it wants the
+    numeric project ID: the slug lookup does not find new projects)."""
+    p = _request(f"https://api.cfwidget.com/{project_id}")
+    latest = re.findall(r"\d+(?:\.\d+)+", (p.get("download") or {}).get("display", ""))
+    return {"downloads": p["downloads"]["total"], "version": latest[-1] if latest else None}
+
+
+# Placeholders in profile.toml that name an outside project, e.g. {downloads:modrinth/cobblemon_expeditions}.
+PROJECT_REF = re.compile(r"\{\w+:(modrinth|curseforge)/([^}]+)\}")
+FETCHERS = {"modrinth": fetch_modrinth, "curseforge": fetch_curseforge}
 
 
 def load(profile, offline=False):
@@ -103,16 +123,12 @@ def load(profile, offline=False):
     else:
         print("github: no PROFILE_TOKEN or GITHUB_TOKEN; using the cached numbers")
 
-    slugs = set()
-    for text in _all_text(profile):
-        slugs.update(part.split("}")[0] for part in text.split("{downloads:")[1:])
-        slugs.update(part.split("}")[0] for part in text.split("{followers:")[1:])
-    modrinth = cache.setdefault("modrinth", {})
-    for slug in sorted(slugs):
+    refs = {m for text in _all_text(profile) for m in PROJECT_REF.findall(text)}
+    for site, project in sorted(refs):
         try:
-            modrinth[slug] = fetch_modrinth(slug)
+            cache.setdefault(site, {})[project] = FETCHERS[site](project)
         except Exception as e:  # noqa: BLE001
-            print(f"modrinth {slug}: {e}; using the cached numbers")
+            print(f"{site} {project}: {e}; using the cached numbers")
 
     cache["updated"] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     CACHE.parent.mkdir(parents=True, exist_ok=True)

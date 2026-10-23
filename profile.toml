@@ -1,6 +1,10 @@
 # Everything the profile says. Edit this, then run `tools/refresh.sh` (or let the daily Action do it).
-# Text in {braces} is filled with live numbers: {contributions} {uptime} {downloads:<modrinth slug>}
-# {stars:<repo>} {streak} {best_streak} {public_repos}.
+# Text in {braces} is filled with live numbers:
+#   {contributions} {uptime} {streak} {best_streak} {public_repos}
+#   {stars:<repo>} {release:<repo>}                       GitHub (release = latest release tag, without the v)
+#   {downloads|followers|version:modrinth/<slug>}         Modrinth
+#   {downloads|version:curseforge/<project id>}           CurseForge (the numeric ID from the project's page)
+# A badge, stat or fetch line whose number can't be fetched (and was never cached) is left out.
 
 login = "ZIPender"
 user = "zip"
@@ -20,7 +24,7 @@ lines = [
   ["Builds", "Minecraft mods · 3DS homebrew · games"],
   ["Langs", "Kotlin · Java · C · TypeScript · C#"],
   ["Commits", "{contributions} in the last year"],
-  ["Mods", "{downloads:cobblemon_expeditions} downloads on Modrinth"],
+  ["Mods", "{downloads:modrinth/cobblemon_expeditions} downloads on Modrinth"],
 ]
 
 # Featured projects. The first one gets the wide card; the others share a row.
@@ -29,10 +33,10 @@ id = "cobblemon-expeditions"
 name = "Cobblemon Expeditions"
 dir = "~/perso/Cobblemon_Expeditions"
 url = "https://modrinth.com/mod/cobblemon_expeditions"
-badge = "v1.8.1"
+badge = "v{version:modrinth/cobblemon_expeditions}"
 tagline = "Send your Pokémon on timed expeditions for loot, XP and money. Type matchups, IVs and hazards decide how it goes, and the board upgrades in place from Copper to Netherite."
 tags = ["Kotlin", "Fabric", "NeoForge", "MC 1.21.1"]
-stats = [["md-download", "{downloads:cobblemon_expeditions} downloads"], ["fa-heart", "{followers:cobblemon_expeditions} followers"]]
+stats = [["md-download", "{downloads:modrinth/cobblemon_expeditions} downloads"], ["fa-heart", "{followers:modrinth/cobblemon_expeditions} followers"]]
 art = "cobblemon-boards.webp"
 icon = "cobblemon-icon.webp"
 accent = "#75D6A5"
@@ -42,7 +46,7 @@ id = "pkmn-randomizer-3ds"
 name = "Pokémon Randomizer 3DS"
 dir = "~/perso/3ds-projects"
 url = "https://github.com/ZIPender/pkmn-randomizer-3ds"
-badge = "v2.1.2"
+badge = "v{release:pkmn-randomizer-3ds}"
 tagline = "Randomize your Pokémon games on the 3DS itself, offline. 28 games, Gen 1 to 7, with seeds and spoiler logs."
 tags = ["C", "3DS homebrew", "citro2d"]
 stats = [["fa-star", "{stars:pkmn-randomizer-3ds} stars"], ["md-nintendo_game_boy", "28 games"]]
@@ -54,10 +58,12 @@ accent = "#FF6B81"
 id = "shadowbound"
 name = "Shadowbound"
 dir = "~/perso/Shadowbound"
-badge = "v1.0"
+url = "https://www.curseforge.com/minecraft/mc-mods/shadowbound"
+badge = "v{version:curseforge/1722670}"
 tagline = "Bind the creatures you slay as Shadows: store them in your Sea Soul, summon them, march them in formations and ride them."
 tags = ["Java", "Fabric", "NeoForge", "MC 1.21.1"]
-stats = [["md-ghost", "7 shadow ranks"], ["md-sword_cross", "9 formations"]]
+# The first two stats that resolve are shown, so the formations step in until CurseForge answers.
+stats = [["md-download", "{downloads:curseforge/1722670} downloads"], ["md-ghost", "7 shadow ranks"], ["md-sword_cross", "9 formations"]]
 art = "shadowbound-soul.webp"
 icon = "shadowbound-icon.webp"
 accent = "#BD63FF"

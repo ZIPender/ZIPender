@@ -354,14 +354,26 @@ class Numbers:
         return ", ".join(parts) or "a few days"
 
     def fill(self, text):
+        """`text` with its {placeholders} filled, or None when one of them has no number yet."""
+        missing = False
+
         def sub(m):
+            nonlocal missing
             key, _, arg = m.group(1).partition(":")
-            if key in ("downloads", "followers"):
-                return f"{self.stats.get('modrinth', {}).get(arg, {}).get(key, 0):,}"
-            if key == "stars":
-                return f"{self.stats.get('github', {}).get('stars', {}).get(arg, 0):,}"
-            return self.values[key]
-        return re.sub(r"\{([a-z_]+(?::[^}]+)?)\}", sub, text)
+            if "/" in arg:  # {downloads:modrinth/<slug>}, {version:curseforge/<id>}
+                site, _, project = arg.partition("/")
+                value = self.stats.get(site, {}).get(project, {}).get(key)
+            elif key in ("stars", "release"):
+                value = self.stats.get("github", {}).get({"stars": "stars", "release": "releases"}[key], {}).get(arg)
+            else:
+                value = self.values.get(key)
+            if value is None:
+                missing = True
+                return ""
+            return f"{value:,}" if isinstance(value, int) else str(value)
+
+        out = re.sub(r"\{([a-z_]+(?::[^}]+)?)\}", sub, text)
+        return None if missing else out
 
     @property
     def clock(self):
@@ -372,7 +384,7 @@ class Numbers:
 
 def header(p, n):
     """fastfetch in Konsole, framed like a spectacle-border screenshot."""
-    lines = p["fetch"]["lines"]
+    lines = fetch_lines(p, n)
     rows_fetch = max(2 + len(lines) + 3, 13)  # title, separator, lines, blank, two rows of colour blocks
     g = Grid(0, 0)
     pad_x, pad_y = 18, 14
@@ -410,7 +422,7 @@ def header(p, n):
         if not line:
             k = 0
             continue
-        key, value = line[0], n.fill(line[1])
+        key, value = line
         if col + 12 + len(value) > cols:
             print(f"  ! header: '{value}' is {col + 12 + len(value) - cols} cells too wide")
         out.append(svg.text(g.cx(col), g.base(4 + i), [(f"{key:<10}", KEY_COLORS[k % len(KEY_COLORS)], True),
@@ -438,6 +450,12 @@ def header(p, n):
     svg.save("header.svg")
 
 
+def fetch_lines(p, n):
+    """profile.toml's fetch lines with their numbers filled; lines without a number yet are left out."""
+    lines = [(line[0], n.fill(line[1])) if line else () for line in p["fetch"]["lines"]]
+    return [line for line in lines if not line or line[1] is not None]
+
+
 def prompt_strip(name, path, command, label, n):
     """A slim terminal strip with a typed command, used as a section title."""
     g = Grid(18, 13)
@@ -454,7 +472,7 @@ def wrap(text, cols):
     return textwrap.wrap(text, cols, break_on_hyphens=False)
 
 
-def card_base(svg, p, h):
+def card_base(svg, p, h, n):
     """Card body, accent border, Konsole-like tab bar with the project's folder and a version badge."""
     w, acc = svg.w, p["accent"]
     clip = svg.id("card")
@@ -465,11 +483,12 @@ def card_base(svg, p, h):
     folder = nf("custom-folder")
     svg.add(svg.text(16, 22, [(folder + " ", C["eza_dir"]), (p["dir"], C["dir"], True), ("  "),
                               (nf("pl-branch") + " main", C["purple"], True)], 12.5))
-    if p.get("badge"):
-        bw = len(p["badge"]) * 7.2 + 18
+    badge = n.fill(p.get("badge", ""))
+    if badge:
+        bw = len(badge) * 7.2 + 18
         svg.add(f'<rect x="{w - bw - 12:.1f}" y="8.5" width="{bw:.1f}" height="18" rx="9" fill="{acc}" '
                 f'fill-opacity=".12" stroke="{acc}" stroke-opacity=".55"/>',
-                svg.text(w - 12 - bw / 2, 21.5, [(p["badge"], acc, True)], 12, anchor="middle"))
+                svg.text(w - 12 - bw / 2, 21.5, [(badge, acc, True)], 12, anchor="middle"))
     return clip
 
 
@@ -504,10 +523,12 @@ def pills(svg, p, x, y):
         x += tw + 7
 
 
-def stat_row(svg, p, x, y, n, size=13):
+def stat_row(svg, p, x, y, n, size=13, most=2):
+    """The first `most` stats whose numbers are known, as icon + bold number + label."""
+    shown = [(icon, n.fill(text)) for icon, text in p["stats"]]
     spans = []
-    for i, (icon, text) in enumerate(p["stats"]):
-        num, _, rest = n.fill(text).partition(" ")
+    for i, (icon, text) in enumerate([s for s in shown if s[1] is not None][:most]):
+        num, _, rest = text.partition(" ")
         spans += [("   " if i else ""), (nf(icon) + " ", p["accent"]), (num, C["fg"], True), (" " + rest, C["faint"])]
     svg.add(svg.text(x, y, spans, size))
 
@@ -515,7 +536,7 @@ def stat_row(svg, p, x, y, n, size=13):
 def wide_card(p, n):
     h = 244
     svg = Svg(W, h, f"{p['name']}: {p['tagline']}")
-    clip = card_base(svg, p, h)
+    clip = card_base(svg, p, h, n)
     # art on the right, fading into the card on its left edge
     ax = 410
     fade = svg.id("fade")
@@ -538,7 +559,7 @@ def wide_card(p, n):
 def tall_card(p, n):
     w, h, art_h = 434, 380, 180
     svg = Svg(w, h, f"{p['name']}: {p['tagline']}")
-    clip = card_base(svg, p, h)
+    clip = card_base(svg, p, h, n)
     if p["art"] == "3ds":
         art_3ds(svg, 35, art_h)
     else:
@@ -806,7 +827,7 @@ def readme(p, n):
         "<!-- Generated by src/build.py from profile.toml. Edit those, not this file. -->",
         '<p align="center">',
         "  " + img_tag("header.svg", f"fastfetch for {p['user']}@{p['host']}: "
-                       + "; ".join(f"{l[0]} {n.fill(l[1])}" for l in p["fetch"]["lines"] if l)),
+                       + "; ".join(f"{key} {value}" for key, value in filter(None, fetch_lines(p, n)))),
         "</p>", "",
         '<p align="center">', "  " + img_tag("projects.svg", "eza --icons ~/projects"), "</p>",
         '<p align="center">', "  " + linked(first, "100%"), "</p>",

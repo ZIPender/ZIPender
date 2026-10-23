@@ -1,9 +1,12 @@
 name: refresh
 
-# Re-render the profile with fresh numbers every day, and whenever its source changes.
+# Re-render the profile with fresh numbers every day at midnight Zurich time, and whenever its source changes.
+# Cron runs in UTC, and midnight in Zurich is 22:00 UTC in summer (CEST) but 23:00 UTC in winter (CET), so both
+# are scheduled and the "when" job lets through only the one that is midnight in Zurich on that date.
 on:
   schedule:
-    - cron: "17 4 * * *"
+    - cron: "0 22 * * *"
+    - cron: "0 23 * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -17,7 +20,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  when:
+    runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.check.outputs.go }}
+    steps:
+      - id: check
+        run: |
+          go=true
+          if [[ "${{ github.event_name }}" == schedule ]]; then
+            # Zurich's UTC offset right now: +0200 in summer, +0100 in winter.
+            [[ $(TZ=Europe/Zurich date +%z) == +0200 ]] && want="0 22 * * *" || want="0 23 * * *"
+            [[ "${{ github.event.schedule }}" == "$want" ]] || go=false
+          fi
+          echo "go=$go" >> "$GITHUB_OUTPUT"
+          echo "Zurich time: $(TZ=Europe/Zurich date '+%F %H:%M %Z'), run: $go"
+
   render:
+    needs: when
+    if: needs.when.outputs.go == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
