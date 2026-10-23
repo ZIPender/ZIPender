@@ -1,0 +1,46 @@
+name: refresh
+
+# Re-render the profile with fresh numbers every day, and whenever its source changes.
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["profile.toml", "src/**", ".github/workflows/refresh.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install fonttools brotli
+
+      # GITHUB_TOKEN sees public data only, which is enough for the contribution calendar (private contributions
+      # are shown on the profile) and stars. The language mix needs private repos: add a PROFILE_TOKEN secret
+      # (a token with `repo` scope) to refresh it too; without one, the last mix rendered locally is kept.
+      - name: Render
+        run: python src/build.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PROFILE_TOKEN: ${{ secrets.PROFILE_TOKEN }}
+
+      - name: Commit if anything changed
+        run: |
+          git add -A assets data README.md
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Refresh profile numbers"
+          git push

@@ -1,0 +1,119 @@
+# Everything the profile says. Edit this, then run `tools/refresh.sh` (or let the daily Action do it).
+# Text in {braces} is filled with live numbers: {contributions} {uptime} {downloads:<modrinth slug>}
+# {stars:<repo>} {streak} {best_streak} {public_repos}.
+
+login = "ZIPender"
+user = "zip"
+host = "ziparch"
+timezone = "Europe/Zurich"   # for the clocks in the prompts
+cwd = "~/perso/ZIPender"     # where the header's prompt pretends to be
+
+# fastfetch, as it runs in my Konsole: avatar on the left, these lines on the right.
+# An empty list is a blank line. Key colours follow ~/.config/fastfetch/config.jsonc.
+[fetch]
+lines = [
+  ["OS", "Arch Linux x86_64"],
+  ["Shell", "zsh + starship"],
+  ["Terminal", "Konsole · Obsidian Purple"],
+  ["Uptime", "{uptime} on GitHub"],
+  [],
+  ["Builds", "Minecraft mods · 3DS homebrew · games"],
+  ["Langs", "Kotlin · Java · C · TypeScript · C#"],
+  ["Commits", "{contributions} in the last year"],
+  ["Mods", "{downloads:cobblemon_expeditions} downloads on Modrinth"],
+]
+
+# Featured projects. The first one gets the wide card; the others share a row.
+[[project]]
+id = "cobblemon-expeditions"
+name = "Cobblemon Expeditions"
+dir = "~/perso/Cobblemon_Expeditions"
+url = "https://modrinth.com/mod/cobblemon_expeditions"
+badge = "v1.8.1"
+tagline = "Send your Pokémon on timed expeditions for loot, XP and money. Type matchups, IVs and hazards decide how it goes, and the board upgrades in place from Copper to Netherite."
+tags = ["Kotlin", "Fabric", "NeoForge", "MC 1.21.1"]
+stats = [["md-download", "{downloads:cobblemon_expeditions} downloads"], ["fa-heart", "{followers:cobblemon_expeditions} followers"]]
+art = "cobblemon-boards.webp"
+icon = "cobblemon-icon.webp"
+accent = "#75D6A5"
+
+[[project]]
+id = "pkmn-randomizer-3ds"
+name = "Pokémon Randomizer 3DS"
+dir = "~/perso/3ds-projects"
+url = "https://github.com/ZIPender/pkmn-randomizer-3ds"
+badge = "v2.1.2"
+tagline = "Randomize your Pokémon games on the 3DS itself, offline. 28 games, Gen 1 to 7, with seeds and spoiler logs."
+tags = ["C", "3DS homebrew", "citro2d"]
+stats = [["fa-star", "{stars:pkmn-randomizer-3ds} stars"], ["md-nintendo_game_boy", "28 games"]]
+art = "3ds"
+icon = "randomizer-icon.webp"
+accent = "#FF6B81"
+
+[[project]]
+id = "shadowbound"
+name = "Shadowbound"
+dir = "~/perso/Shadowbound"
+badge = "v1.0"
+tagline = "Bind the creatures you slay as Shadows: store them in your Sea Soul, summon them, march them in formations and ride them."
+tags = ["Java", "Fabric", "NeoForge", "MC 1.21.1"]
+stats = [["md-ghost", "7 shadow ranks"], ["md-sword_cross", "9 formations"]]
+art = "shadowbound-soul.webp"
+icon = "shadowbound-icon.webp"
+accent = "#BD63FF"
+
+# `eza --tree` of what I work with. Icons are Nerd Font glyph names.
+[[stack]]
+dir = "lang"
+icon = "md-code_braces"
+items = [
+  ["md-language_kotlin", "Kotlin", "#A970FF"],
+  ["dev-java", "Java", "#FF8A9E"],
+  ["md-language_c", "C", "#8FAAFF"],
+  ["md-language_typescript", "TypeScript", "#7297FF"],
+  ["md-language_csharp", "C#", "#75D6A5"],
+  ["dev-python", "Python", "#E6C875"],
+  ["dev-php", "PHP", "#D89AFF"],
+]
+
+[[stack]]
+dir = "games"
+icon = "md-gamepad_variant"
+items = [
+  ["md-minecraft", "Fabric / NeoForge", "#75D6A5"],
+  ["md-unity", "Unity", "#E7E2EA"],
+  ["seti-godot", "Godot", "#70CFE3"],
+  ["md-nintendo_game_boy", "devkitPro 3DS", "#FF6B81"],
+  ["md-blender_software", "Blender", "#F2A65A"],
+]
+
+[[stack]]
+dir = "web"
+icon = "md-web"
+items = [
+  ["dev-react", "React", "#70CFE3"],
+  ["dev-nextjs", "Next.js", "#E7E2EA"],
+  ["dev-vitejs", "Vite", "#D89AFF"],
+  ["dev-nodejs_small", "Node", "#75D6A5"],
+  ["dev-postgresql", "Postgres", "#8FAAFF"],
+]
+
+[[stack]]
+dir = "system"
+icon = "fa-terminal"
+items = [
+  ["linux-archlinux", "Arch", "#70CFE3"],
+  ["linux-kde", "KDE Plasma", "#8FAAFF"],
+  ["oct-terminal", "zsh + starship", "#BD63FF"],
+  ["linux-docker", "Docker", "#7297FF"],
+  ["dev-git", "git", "#FF8A9E"],
+]
+
+[footer]
+command = "exit"
+note = "thanks for stopping by"
+
+# The btop panel. Languages come from this year's commits, each repo counted as its primary language.
+[stats]
+hide_languages = ["Luau"]   # left out of the language mix (hide_repos = [...] works too)
+languages = 6              # how many to show

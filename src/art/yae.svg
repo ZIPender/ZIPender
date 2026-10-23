@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 140">
+  <!-- Yae Miko: a sacred sakura with an electro-violet heart, petals drifting along the top edge. -->
+  <defs>
+    <filter id="halo" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <radialGradient id="bloom" cx="0" cy="0" r="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9B4DF2"/>
+      <stop offset="0.38" stop-color="#E77BC0"/>
+      <stop offset="1" stop-color="#FFD3E8"/>
+    </radialGradient>
+    <linearGradient id="loose" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#E880BF"/>
+      <stop offset="1" stop-color="#FFD9EC"/>
+    </linearGradient>
+    <path id="petal" d="M0 -5 C -15 -13 -25 -33 -12 -47 Q -6 -45 0 -40 Q 6 -45 12 -47 C 25 -33 15 -13 0 -5 Z"/>
+    <path id="loosepetal" d="M0 0 C -9 -5 -12 -17 -5 -24 Q -2 -23 0 -20 Q 2 -23 5 -24 C 12 -17 9 -5 0 0 Z"/>
+    <path id="spark" d="M0 -10 C 0.8 -2.5 2.5 -0.8 10 0 C 2.5 0.8 0.8 2.5 0 10 C -0.8 2.5 -2.5 0.8 -10 0 C -2.5 -0.8 -0.8 -2.5 0 -10 Z"/>
+  </defs>
+  <!-- soft pink halo behind the blossom -->
+  <g transform="translate(70 70) rotate(-8)" fill="#FF8CCB" opacity="0.6" filter="url(#halo)">
+    <use xlink:href="#petal"/>
+    <use xlink:href="#petal" transform="rotate(72)"/>
+    <use xlink:href="#petal" transform="rotate(144)"/>
+    <use xlink:href="#petal" transform="rotate(216)"/>
+    <use xlink:href="#petal" transform="rotate(288)"/>
+  </g>
+  <!-- main blossom, centred on the frame corner (70,70) -->
+  <g transform="translate(70 70) rotate(-8)" fill="url(#bloom)" stroke="#E9C77F" stroke-width="2" stroke-linejoin="round">
+    <use xlink:href="#petal"/>
+    <use xlink:href="#petal" transform="rotate(72)"/>
+    <use xlink:href="#petal" transform="rotate(144)"/>
+    <use xlink:href="#petal" transform="rotate(216)"/>
+    <use xlink:href="#petal" transform="rotate(288)"/>
+  </g>
+  <g transform="translate(70 70)" fill="#F6DA8E">
+    <g stroke="#F6DA8E" stroke-width="1.6" stroke-linecap="round">
+      <line x1="0" y1="0" x2="0" y2="-15"/><line x1="0" y1="0" x2="14" y2="-6"/>
+      <line x1="0" y1="0" x2="9" y2="12"/><line x1="0" y1="0" x2="-9" y2="12"/>
+      <line x1="0" y1="0" x2="-14" y2="-6"/>
+    </g>
+    <circle cx="0" cy="-15" r="2.6"/><circle cx="14" cy="-6" r="2.6"/><circle cx="9" cy="12" r="2.6"/>
+    <circle cx="-9" cy="12" r="2.6"/><circle cx="-14" cy="-6" r="2.6"/>
+    <circle r="5.5" fill="#FFF1C7"/>
+  </g>
+  <!-- petals drifting along the top edge -->
+  <g fill="url(#loose)" stroke="#E9C77F" stroke-width="1.2" stroke-linejoin="round">
+    <use xlink:href="#loosepetal" transform="translate(150 48) rotate(70) scale(0.95)" opacity="0.95"/>
+    <use xlink:href="#loosepetal" transform="translate(205 66) rotate(115) scale(0.75)" opacity="0.8"/>
+    <use xlink:href="#loosepetal" transform="translate(262 44) rotate(40) scale(0.55)" opacity="0.6"/>
+  </g>
+  <use xlink:href="#spark" transform="translate(128 86) scale(0.9)" fill="#E9D6FF"/>
+</svg>
