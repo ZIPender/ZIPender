@@ -96,9 +96,22 @@ def fetch_curseforge(project_id):
     return {"downloads": p["downloads"]["total"], "version": latest[-1] if latest else None}
 
 
+def fetch_github_releases(repo):
+    """Downloads of every file of every release of `repo` ("owner/name"), added up."""
+    token = os.environ.get("PROFILE_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    headers = {"Authorization": f"bearer {token}"} if token else {}
+    total, page = 0, 1
+    while True:
+        releases = _request(f"https://api.github.com/repos/{repo}/releases?per_page=100&page={page}", headers=headers)
+        total += sum(a["download_count"] for r in releases for a in r["assets"])
+        if len(releases) < 100:
+            return {"downloads": total, "releases": len(releases) + (page - 1) * 100}
+        page += 1
+
+
 # Placeholders in profile.toml that name an outside project, e.g. {downloads:modrinth/cobblemon_expeditions}.
-PROJECT_REF = re.compile(r"\{\w+:(modrinth|curseforge)/([^}]+)\}")
-FETCHERS = {"modrinth": fetch_modrinth, "curseforge": fetch_curseforge}
+PROJECT_REF = re.compile(r"\{\w+:(modrinth|curseforge|releases)/([^}]+)\}")
+FETCHERS = {"modrinth": fetch_modrinth, "curseforge": fetch_curseforge, "releases": fetch_github_releases}
 
 
 def load(profile, offline=False):

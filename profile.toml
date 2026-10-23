@@ -4,6 +4,7 @@
 #   {stars:<repo>} {release:<repo>}                       GitHub (release = latest release tag, without the v)
 #   {downloads|followers|version:modrinth/<slug>}         Modrinth
 #   {downloads|version:curseforge/<project id>}           CurseForge (the numeric ID from the project's page)
+#   {downloads:releases/<owner>/<repo>}                   GitHub: every release file's downloads, added up
 # A badge, stat or fetch line whose number can't be fetched (and was never cached) is left out.
 
 login = "ZIPender"
@@ -49,7 +50,7 @@ url = "https://github.com/ZIPender/pkmn-randomizer-3ds"
 badge = "v{release:pkmn-randomizer-3ds}"
 tagline = "Randomize your Pokémon games on the 3DS itself, offline. 28 games, Gen 1 to 7, with seeds and spoiler logs."
 tags = ["C", "3DS homebrew", "citro2d"]
-stats = [["fa-star", "{stars:pkmn-randomizer-3ds} stars"], ["md-nintendo_game_boy", "28 games"]]
+stats = [["md-download", "{downloads:releases/ZIPender/pkmn-randomizer-3ds} downloads"], ["fa-star", "{stars:pkmn-randomizer-3ds} stars"], ["md-nintendo_game_boy", "28 games"]]
 art = "3ds"
 icon = "randomizer-icon.webp"
 accent = "#FF6B81"

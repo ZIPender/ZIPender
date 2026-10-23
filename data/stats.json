@@ -1530,11 +1530,17 @@
    "version": "1.8.1"
   }
  },
- "updated": "2026-10-23T16:29:44+00:00",
+ "updated": "2026-10-23T16:49:10+00:00",
  "curseforge": {
   "1722670": {
    "downloads": 223,
    "version": "1.0.1"
+  }
+ },
+ "releases": {
+  "ZIPender/pkmn-randomizer-3ds": {
+   "downloads": 953,
+   "releases": 7
   }
  }
 }
