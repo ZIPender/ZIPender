@@ -65,7 +65,7 @@ tagline = "Bind the creatures you slay as Shadows: store them in your Sea Soul, 
 tags = ["Java", "Fabric", "NeoForge", "MC 1.21.1"]
 # The first two stats that resolve are shown, so the formations step in until CurseForge answers.
 stats = [["md-download", "{downloads:curseforge/1722670} downloads"], ["md-ghost", "7 shadow ranks"], ["md-sword_cross", "9 formations"]]
-art = "shadowbound-soul.webp"
+art = "shadowbound-summon.json"   # the Stone Saint summoned and recalled, made by tools/prepare.py
 icon = "shadowbound-icon.webp"
 accent = "#BD63FF"
 

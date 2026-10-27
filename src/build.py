@@ -13,6 +13,7 @@ import base64
 import datetime as dt
 import html
 import io
+import json
 import math
 import re
 import textwrap
@@ -241,6 +242,20 @@ def typed_command(svg, g, row, command, start, speed=0.055, blink_from=None):
 
 def reveal(at):
     return f'style="animation:in .12s {at:.2f}s both"'
+
+
+def flip(svg, start, length, slots, slot):
+    """The style that shows an element for `length` of every `slots` slots of `slot` seconds, from slot `start`.
+
+    A picture's flips share one cycle, each offset by a negative delay, so the loop is already running when the
+    picture appears."""
+    name = f"show{length}of{slots}"
+    pct = 100 * length / slots
+    rule = f"@keyframes {name}{{0%,{pct - .01:.2f}%{{opacity:1}}{pct:.2f}%,100%{{opacity:0}}}}"
+    if rule not in svg.css:
+        svg.css.append(rule)
+    period = slots * slot
+    return f'style="animation:{name} {period:.2f}s steps(1) {start * slot - period:.2f}s infinite"'
 
 
 def right_clock(svg, g, row, cols, clock):
@@ -563,15 +578,18 @@ def tall_card(p, n):
     if p["art"] == "3ds":
         art_3ds(svg, 35, art_h)
     else:
+        # a picture, or a recording (its .json, made by tools/prepare.py), fading into the card at the bottom
         fade = svg.id("fade")
         svg.defs.append(f'<linearGradient id="{fade}" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" '
                         f'stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
                         f'<mask id="{fade}m"><rect x="0" y="35" width="{w}" height="{art_h}" fill="url(#{fade})"/>'
                         f'</mask>')
-        svg.add(f'<g clip-path="url(#{clip})"><image href="{img(p["art"])}" x="0" y="35" width="{w}" '
-                f'height="{art_h}" preserveAspectRatio="xMidYMid slice" mask="url(#{fade}m)"/></g>')
-        if p["id"] == "shadowbound":
-            sparks(svg, 150, 35 + 95)
+        if p["art"].endswith(".json"):
+            art = art_loop(svg, json.loads((SRC / "img" / p["art"]).read_text()), 35, art_h)
+        else:
+            art = (f'<image href="{img(p["art"])}" x="0" y="35" width="{w}" height="{art_h}" '
+                   f'preserveAspectRatio="xMidYMid slice"/>')
+        svg.add(f'<g clip-path="url(#{clip})" mask="url(#{fade}m)">{art}</g>')
     icon_tile(svg, p, 18, 35 + art_h - 26, 58)
     svg.add(svg.text(90, 35 + art_h + 22, [(p["name"], C["fg"], True)], 19))
     stat_row(svg, p, 90, 35 + art_h + 45, n, 12.5)
@@ -609,29 +627,59 @@ def art_3ds(svg, top, art_h, frames=7, hold=1.7):
         fid = svg.id("f")
         svg.defs.append(f'<image id="{fid}" href="{img(f"randomizer-{i}.webp")}" width="400" height="490"/>')
         ids.append(fid)
-    period = frames * hold
-    pct = 100 / frames
-    svg.css.append(f"@keyframes cycle{{0%,{pct - .01:.2f}%{{opacity:1}}{pct:.2f}%,100%{{opacity:0}}}}")
     for (vx, vy, vw, vh), sx, sw in (((0, 0, 400, 240), xs[0], tw), ((40, 250, 320, 240), xs[1], bw)):
         layers = []
         for i, fid in enumerate(ids):
-            style = f'style="animation:cycle {period:.1f}s steps(1) {i * hold - period:.1f}s infinite"'
-            layers.append(f'<use href="#{fid}" xlink:href="#{fid}" opacity="{1 if i == 0 else 0}" {style}/>')
+            layers.append(f'<use href="#{fid}" xlink:href="#{fid}" opacity="{1 if i == 0 else 0}" '
+                          f'{flip(svg, i, 1, frames, hold)}/>')
         svg.add(f'<svg x="{sx}" y="{y0 + bez}" width="{sw}" height="{th}" viewBox="{vx} {vy} {vw} {vh}">'
                 f'{"".join(layers)}</svg>')
     svg.add(f'<rect x="1" y="{top + art_h - 3}" width="{w - 2}" height="3" fill="#E5482F"/>')
 
 
-def sparks(svg, x, y):
-    """Shadowbound's summon sparks, rising and fading around the Shadow."""
-    pts = [(-40, 30, 2.2, 5.5, 0), (10, 50, 1.6, 6.5, 1.2), (60, 20, 2.4, 5, 2.4), (95, 45, 1.4, 7, 0.6),
-           (-15, 0, 1.8, 6, 3.3), (130, 10, 2, 5.8, 1.8), (35, -10, 1.3, 6.8, 4.1)]
-    svg.css.append("@keyframes spark{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%"
-                   "{transform:translateY(-70px);opacity:0}}")
-    for dx, dy, r, dur, delay in pts:
-        color = C["cyan"] if r > 1.7 else C["lilac"]
-        svg.add(f'<circle class="fx" cx="{x + dx}" cy="{y + dy}" r="{r}" fill="{color}" '
-                f'style="opacity:0;animation:spark {dur}s ease-out {delay}s infinite;filter:drop-shadow(0 0 3px {color})"/>')
+def art_loop(svg, loop, top, art_h):
+    """A recording on a loop: its still scene, the moving part of each frame cut from one sheet on top, and, when
+    the recording has eyes, their glow. Returns the markup."""
+    w = svg.w
+    k = w / loop["size"][0]
+    bx, by, cw, ch = loop["box"]
+    cols = loop["columns"]
+    rows = math.ceil((max(c for *_, c in loop["runs"]) + 1) / cols)
+    sheet = svg.id("sheet")
+    svg.defs.append(f'<image id="{sheet}" href="{img(loop["sheet"])}" width="{cols * cw}" height="{rows * ch}"/>')
+    out = [f'<image href="{img(loop["scene"])}" x="0" y="{top}" width="{w}" height="{art_h}" '
+           f'preserveAspectRatio="xMidYMid slice"/>']
+    for start, length, cell in loop["runs"]:
+        still = start <= loop["still"] < start + length
+        out.append(f'<svg x="{bx * k:.1f}" y="{top + by * k:.1f}" width="{cw * k:.1f}" height="{ch * k:.1f}" '
+                   f'viewBox="{cell % cols * cw} {cell // cols * ch} {cw} {ch}"><use href="#{sheet}" '
+                   f'xlink:href="#{sheet}" opacity="{1 if still else 0}" '
+                   f'{flip(svg, start, length, loop["slots"], loop["slot"])}/></svg>')
+    if "eyes" in loop:
+        out.append(eye_glow(svg, [(x * k, top + y * k) for x, y in loop["eyes"]], *loop["lit"], loop["slots"],
+                            loop["slot"]))
+    return "".join(out)
+
+
+def eye_glow(svg, eyes, lit, dark, slots, slot):
+    """Iridescent red glows on the Stone Saint's eyes, from slot `lit` until slot `dark` of the recording."""
+    period = slots * slot
+    on, off = 100 * lit / slots, 100 * dark / slots
+    svg.css.append(f"@keyframes lit{{0%,{on:.2f}%{{opacity:0}}{on + 2:.2f}%,{off - 2:.2f}%{{opacity:1}}"
+                   f"{off:.2f}%,100%{{opacity:0}}}}"
+                   "@keyframes iris{0%,100%{fill:#FF1F3D}25%{fill:#FF5A2E}50%{fill:#FF2E86}75%{fill:#D80F38}}")
+    blur = svg.id("glow")
+    svg.defs.append(f'<filter id="{blur}" x="-150%" y="-150%" width="400%" height="400%">'
+                    f'<feGaussianBlur stdDeviation="1.8"/></filter>')
+    out = [f'<g style="mix-blend-mode:screen;animation:lit {period:.2f}s linear {-period:.2f}s infinite">']
+    for i, (x, y) in enumerate(eyes):
+        iris = f"animation:iris 2.4s ease-in-out {-0.7 * i:.1f}s infinite"
+        out.append(f'<ellipse cx="{x:.1f}" cy="{y:.1f}" rx="5" ry="3" fill="#FF1F3D" filter="url(#{blur})" '
+                   f'style="{iris}"/>'
+                   f'<ellipse cx="{x:.1f}" cy="{y:.1f}" rx="2.2" ry="1" fill="#FF1F3D" style="{iris}"/>'
+                   f'<ellipse cx="{x:.1f}" cy="{y:.1f}" rx="1" ry=".5" fill="#FFD3D8" opacity=".8"/>')
+    out.append("</g>")
+    return "".join(out)
 
 
 def btop(p, n):
