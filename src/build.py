@@ -369,15 +369,25 @@ class Numbers:
         return ", ".join(parts) or "a few days"
 
     def fill(self, text):
-        """`text` with its {placeholders} filled, or None when one of them has no number yet."""
+        """`text` with its {placeholders} filled, or None when one of them has no number yet.
+
+        A placeholder can add up projects, each part naming its own key or keeping the one before it:
+        {downloads:modrinth/<slug>+curseforge/<id>}, {followers:modrinth/<slug>+favorites:curseforge/<id>}. Parts
+        without a number yet are skipped, so the sum is only missing when none of them has one."""
         missing = False
 
         def sub(m):
             nonlocal missing
             key, _, arg = m.group(1).partition(":")
-            if "/" in arg:  # {downloads:modrinth/<slug>}, {version:curseforge/<id>}
-                site, _, project = arg.partition("/")
-                value = self.stats.get(site, {}).get(project, {}).get(key)
+            if "/" in arg:  # {downloads:modrinth/<slug>}, {version:curseforge/<id>}, or a sum of them
+                parts = []
+                for part in arg.split("+"):
+                    if ":" in part:
+                        key, _, part = part.partition(":")
+                    site, _, project = part.partition("/")
+                    parts.append(self.stats.get(site, {}).get(project, {}).get(key))
+                known = [v for v in parts if v is not None]
+                value = (sum(known) if len(parts) > 1 else known[0]) if known else None
             elif key in ("stars", "release"):
                 value = self.stats.get("github", {}).get({"stars": "stars", "release": "releases"}[key], {}).get(arg)
             else:

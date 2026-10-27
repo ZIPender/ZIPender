@@ -3,8 +3,10 @@
 #   {contributions} {uptime} {streak} {best_streak} {public_repos}
 #   {stars:<repo>} {release:<repo>}                       GitHub (release = latest release tag, without the v)
 #   {downloads|followers|version:modrinth/<slug>}         Modrinth
-#   {downloads|version:curseforge/<project id>}           CurseForge (the numeric ID from the project's page)
+#   {downloads|favorites|version:curseforge/<project id>} CurseForge (the numeric ID from the project's page)
 #   {downloads:releases/<owner>/<repo>}                   GitHub: every release file's downloads, added up
+#   {downloads:modrinth/<slug>+curseforge/<id>}           a sum; each part can name its own key, as in
+#   {followers:modrinth/<slug>+favorites:curseforge/<id>} (a part without a number yet adds nothing)
 # A badge, stat or fetch line whose number can't be fetched (and was never cached) is left out.
 
 login = "ZIPender"
@@ -25,7 +27,7 @@ lines = [
   ["Builds", "Minecraft mods · 3DS homebrew · games"],
   ["Langs", "Kotlin · Java · C · TypeScript · C#"],
   ["Commits", "{contributions} in the last year"],
-  ["Mods", "{downloads:modrinth/cobblemon_expeditions} downloads on Modrinth"],
+  ["Mods", "{downloads:modrinth/cobblemon_expeditions+curseforge/1470428+curseforge/1722670} downloads, Modrinth + CurseForge"],
 ]
 
 # Featured projects. The first one gets the wide card; the others share a row.
@@ -37,7 +39,8 @@ url = "https://modrinth.com/mod/cobblemon_expeditions"
 badge = "v{version:modrinth/cobblemon_expeditions}"
 tagline = "Send your Pokémon on timed expeditions for loot, XP and money. Type matchups, IVs and hazards decide how it goes, and the board upgrades in place from Copper to Netherite."
 tags = ["Kotlin", "Fabric", "NeoForge", "MC 1.21.1"]
-stats = [["md-download", "{downloads:modrinth/cobblemon_expeditions} downloads"], ["fa-heart", "{followers:modrinth/cobblemon_expeditions} followers"]]
+# Modrinth and CurseForge added up; CurseForge's ★ favorites count with Modrinth's followers.
+stats = [["md-download", "{downloads:modrinth/cobblemon_expeditions+curseforge/1470428} downloads"], ["fa-heart", "{followers:modrinth/cobblemon_expeditions+favorites:curseforge/1470428} favorites"]]
 art = "cobblemon-boards.webp"
 icon = "cobblemon-icon.webp"
 accent = "#75D6A5"
@@ -63,8 +66,9 @@ url = "https://www.curseforge.com/minecraft/mc-mods/shadowbound"
 badge = "v{version:curseforge/1722670}"
 tagline = "Bind the creatures you slay as Shadows: store them in your Sea Soul, summon them, march them in formations and ride them."
 tags = ["Java", "Fabric", "NeoForge", "MC 1.21.1"]
-# The first two stats that resolve are shown, so the formations step in until CurseForge answers.
-stats = [["md-download", "{downloads:curseforge/1722670} downloads"], ["md-ghost", "7 shadow ranks"], ["md-sword_cross", "9 formations"]]
+# The first two stats that resolve are shown, so the ranks and formations step in until CurseForge answers.
+# Once it is on Modrinth, add +modrinth/<slug> to the downloads and +followers:modrinth/<slug> to the favorites.
+stats = [["md-download", "{downloads:curseforge/1722670} downloads"], ["fa-heart", "{favorites:curseforge/1722670} favorites"], ["md-ghost", "7 shadow ranks"], ["md-sword_cross", "9 formations"]]
 art = "shadowbound-summon.json"   # the Stone Saint summoned and recalled, made by tools/prepare.py
 icon = "shadowbound-icon.webp"
 accent = "#BD63FF"

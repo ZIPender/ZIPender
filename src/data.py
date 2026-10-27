@@ -1,4 +1,4 @@
-"""Live numbers for the profile: GitHub (GraphQL) and Modrinth, cached in data/stats.json.
+"""Live numbers for the profile: GitHub (GraphQL), Modrinth and CurseForge, cached in data/stats.json.
 
 Every source falls back to the cached copy when it fails, so a flaky API never blanks a picture.
 """
@@ -89,11 +89,14 @@ def fetch_modrinth(slug):
 
 
 def fetch_curseforge(project_id):
-    """Downloads and latest file of a CurseForge project, through the keyless CFWidget API (it wants the
-    numeric project ID: the slug lookup does not find new projects)."""
-    p = _request(f"https://api.cfwidget.com/{project_id}")
-    latest = re.findall(r"\d+(?:\.\d+)+", (p.get("download") or {}).get("display", ""))
-    return {"downloads": p["downloads"]["total"], "version": latest[-1] if latest else None}
+    """Downloads, favorites (the ★ on the project page) and latest release of a CurseForge project, by its numeric
+    ID. CurseForge's own API wants a key, so this asks api.curse.tools, a keyless mirror of it."""
+    p = _request(f"https://api.curse.tools/v1/mods/{project_id}")["data"]
+    files = sorted(p["latestFiles"], key=lambda f: f["fileDate"])
+    files = [f for f in files if f["releaseType"] == 1] or files  # 1 = release, before betas and alphas
+    latest = re.findall(r"\d+(?:\.\d+)+", files[-1]["displayName"]) if files else []
+    return {"downloads": p["downloadCount"], "favorites": p["favoriteCount"],
+            "version": latest[-1] if latest else None}
 
 
 def fetch_github_releases(repo):
@@ -109,8 +112,10 @@ def fetch_github_releases(repo):
         page += 1
 
 
-# Placeholders in profile.toml that name an outside project, e.g. {downloads:modrinth/cobblemon_expeditions}.
-PROJECT_REF = re.compile(r"\{\w+:(modrinth|curseforge|releases)/([^}]+)\}")
+# Outside projects named in profile.toml's placeholders, e.g. {downloads:modrinth/cobblemon_expeditions}, or
+# each part of a sum like {downloads:modrinth/cobblemon_expeditions+curseforge/1470428}.
+PLACEHOLDER = re.compile(r"\{[^}]*\}")
+PROJECT_REF = re.compile(r"(modrinth|curseforge|releases)/([^+}]+)")
 FETCHERS = {"modrinth": fetch_modrinth, "curseforge": fetch_curseforge, "releases": fetch_github_releases}
 
 
@@ -136,7 +141,7 @@ def load(profile, offline=False):
     else:
         print("github: no PROFILE_TOKEN or GITHUB_TOKEN; using the cached numbers")
 
-    refs = {m for text in _all_text(profile) for m in PROJECT_REF.findall(text)}
+    refs = {m for text in _all_text(profile) for ph in PLACEHOLDER.findall(text) for m in PROJECT_REF.findall(ph)}
     for site, project in sorted(refs):
         try:
             cache.setdefault(site, {})[project] = FETCHERS[site](project)
