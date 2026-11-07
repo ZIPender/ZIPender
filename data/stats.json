@@ -1,7 +1,7 @@
 {
  "github": {
   "created_at": "2024-12-17T17:58:15Z",
-  "contributions": 4772,
+  "contributions": 4795,
   "days": [
    {
     "date": "2025-11-02",
@@ -1477,11 +1477,15 @@
    },
    {
     "date": "2026-11-05",
-    "count": 36
+    "count": 42
    },
    {
     "date": "2026-11-06",
-    "count": 5
+    "count": 22
+   },
+   {
+    "date": "2026-11-07",
+    "count": 0
    }
   ],
   "stars": {
@@ -1501,7 +1505,7 @@
    "ezha": 0,
    "sprite-sheet-creator": 0,
    "awesome-agent-skills": 0,
-   "pkmn-randomizer-3ds": 49,
+   "pkmn-randomizer-3ds": 51,
    "cobblemon_expeditions_doc": 0,
    "zsh-config": 0,
    "ZIPender": 0,
@@ -1527,27 +1531,27 @@
  },
  "modrinth": {
   "cobblemon_expeditions": {
-   "downloads": 298462,
+   "downloads": 299966,
    "followers": 69,
    "version": "1.8.2"
   }
  },
- "updated": "2026-11-06T03:14:44+00:00",
+ "updated": "2026-11-07T02:34:02+00:00",
  "curseforge": {
   "1722670": {
-   "downloads": 325,
+   "downloads": 336,
    "favorites": 17,
    "version": "1.0.1"
   },
   "1470428": {
-   "downloads": 94388,
-   "favorites": 44,
+   "downloads": 95027,
+   "favorites": 45,
    "version": "1.8.2"
   }
  },
  "releases": {
   "ZIPender/pkmn-randomizer-3ds": {
-   "downloads": 5113,
+   "downloads": 5229,
    "releases": 14
   }
  }
