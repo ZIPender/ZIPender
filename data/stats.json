@@ -1,7 +1,7 @@
 {
  "github": {
   "created_at": "2024-12-17T17:58:15Z",
-  "contributions": 4974,
+  "contributions": 5002,
   "days": [
    {
     "date": "2025-11-09",
@@ -1473,6 +1473,10 @@
    },
    {
     "date": "2026-11-11",
+    "count": 28
+   },
+   {
+    "date": "2026-11-12",
     "count": 0
    }
   ],
@@ -1519,27 +1523,27 @@
  },
  "modrinth": {
   "cobblemon_expeditions": {
-   "downloads": 305305,
-   "followers": 73,
+   "downloads": 306492,
+   "followers": 74,
    "version": "1.8.2"
   }
  },
- "updated": "2026-11-11T02:34:00+00:00",
+ "updated": "2026-11-12T03:39:09+00:00",
  "curseforge": {
   "1722670": {
-   "downloads": 365,
-   "favorites": 18,
+   "downloads": 372,
+   "favorites": 19,
    "version": "1.0.1"
   },
   "1470428": {
-   "downloads": 98266,
-   "favorites": 47,
+   "downloads": 99144,
+   "favorites": 48,
    "version": "1.8.2"
   }
  },
  "releases": {
   "ZIPender/pkmn-randomizer-3ds": {
-   "downloads": 5799,
+   "downloads": 5949,
    "releases": 15
   }
  }
