@@ -1,7 +1,7 @@
 {
  "github": {
   "created_at": "2024-12-17T17:58:15Z",
-  "contributions": 5257,
+  "contributions": 5259,
   "days": [
    {
     "date": "2025-11-16",
@@ -1469,7 +1469,11 @@
    },
    {
     "date": "2026-11-17",
-    "count": 4
+    "count": 6
+   },
+   {
+    "date": "2026-11-18",
+    "count": 0
    }
   ],
   "stars": {
@@ -1495,7 +1499,7 @@
    "ZIPender": 0,
    "IsekaiDungeons-forked": 0,
    "image-to-sculpt": 0,
-   "zipDash": 1
+   "zipDash": 2
   },
   "releases": {
    "pteroCATrustPilotPlugin": "1",
@@ -1518,27 +1522,27 @@
  },
  "modrinth": {
   "cobblemon_expeditions": {
-   "downloads": 312892,
-   "followers": 75,
+   "downloads": 314040,
+   "followers": 76,
    "version": "1.8.2"
   }
  },
- "updated": "2026-11-17T04:57:57+00:00",
+ "updated": "2026-11-18T04:02:28+00:00",
  "curseforge": {
   "1722670": {
-   "downloads": 392,
+   "downloads": 397,
    "favorites": 21,
    "version": "1.0.1"
   },
   "1470428": {
-   "downloads": 103156,
-   "favorites": 53,
+   "downloads": 103852,
+   "favorites": 54,
    "version": "1.8.2"
   }
  },
  "releases": {
   "ZIPender/pkmn-randomizer-3ds": {
-   "downloads": 6598,
+   "downloads": 6690,
    "releases": 15
   }
  }
