@@ -1482,6 +1482,10 @@
    {
     "date": "2026-11-20",
     "count": 0
+   },
+   {
+    "date": "2026-11-21",
+    "count": 0
    }
   ],
   "stars": {
@@ -1530,27 +1534,27 @@
  },
  "modrinth": {
   "cobblemon_expeditions": {
-   "downloads": 316677,
+   "downloads": 318208,
    "followers": 76,
    "version": "1.8.2"
   }
  },
- "updated": "2026-11-20T03:53:02+00:00",
+ "updated": "2026-11-21T03:47:52+00:00",
  "curseforge": {
   "1722670": {
-   "downloads": 410,
+   "downloads": 425,
    "favorites": 22,
    "version": "1.0.1"
   },
   "1470428": {
-   "downloads": 105111,
+   "downloads": 105789,
    "favorites": 58,
    "version": "1.8.2"
   }
  },
  "releases": {
   "ZIPender/pkmn-randomizer-3ds": {
-   "downloads": 6857,
+   "downloads": 6929,
    "releases": 15
   }
  }
